@@ -1,0 +1,30 @@
+name: Semgrep SAST Scan
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  semgrep-sast:
+    name: Semgrep SAST Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Semgrep Scan
+      uses: returntocorp/semgrep-action@v1
+      with:
+        # Scan the entire repository
+        config: p/default
+        # Output results to console
+        outputFormat: text
+      env:
+        SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        
+    - name: Upload results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: semgrep.sarif
